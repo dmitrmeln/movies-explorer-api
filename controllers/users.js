@@ -27,7 +27,12 @@ function handleUserUpdate(req, res, next, options) {
     )
     .orFail(new SearchError('Пользователь с указанным _id не найден.'))
     .then((user) => res.status(gotSuccess.status).send(user))
-    .catch(next);
+    .catch((error) => {
+      if (error.name === 'MongoServerError' && error.code === 11000) {
+        return next(new RegistrationError('Пользователь с данным email уже существует.'));
+      }
+      return next(error);
+    });
 }
 
 function updateUserInfo(req, res, next) {
