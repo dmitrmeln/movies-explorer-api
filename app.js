@@ -11,9 +11,9 @@ const appRouter = require('./routes');
 const errorsHandler = require('./middlewares/error-handler');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const rateLimiter = require('./middlewares/rate-limiter');
-const { PORT, MONGO_URL } = require('./utils/config');
+const { PORT, MONGO_URL, NODE_ENV } = require('./utils/config');
 
-mongoose.connect(MONGO_URL)
+mongoose.connect(NODE_ENV === 'production' ? MONGO_URL : 'mongodb://localhost:27017/bitfilmsdb')
   .then(() => {
     console.log('mongodb connected');
   });
@@ -28,6 +28,6 @@ app.use(errorLogger);
 app.use(errors());
 app.use(errorsHandler);
 
-app.listen(PORT, () => {
-  console.log(`server started on port ${PORT}`);
+app.listen(NODE_ENV === 'production' ? PORT : '3000', () => {
+  console.log(`server started on port ${NODE_ENV === 'production' ? PORT : '3000'}`);
 });

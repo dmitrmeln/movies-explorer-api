@@ -1,21 +1,21 @@
 const { verifyWebToken } = require('../utils/jwt');
 const UnauthorizedError = require('../errors/unauthorized-error');
 
+const { errorMessages } = require('../utils/constants');
+
 function auth(req, res, next) {
-  const { authorization } = req.headers;
+  const token = req.cookies.jwt;
 
-  if (!authorization || !authorization.startsWith('Bearer ')) {
-    return next(new UnauthorizedError('Необходима авторизация.'));
+  if (!token) {
+    return next(new UnauthorizedError(errorMessages.unauthorizedError));
   }
-
-  const token = authorization.replace('Bearer ', '');
 
   let payload;
 
   try {
     payload = verifyWebToken(token);
   } catch (err) {
-    return next(new UnauthorizedError('Необходима авторизация.'));
+    return next(new UnauthorizedError(errorMessages.unauthorizedError));
   }
 
   req.user = payload;

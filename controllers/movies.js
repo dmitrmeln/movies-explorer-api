@@ -3,14 +3,16 @@ const SearchError = require('../errors/search-error');
 const ForbiddenError = require('../errors/forbidden-error');
 
 const {
-  gotSuccess,
-  successCreated,
+  errorMessages,
+  successMessages,
+  statusCodes,
 } = require('../utils/constants');
 
 function readAllMovies(req, res, next) {
+  const ownerId = req.user.id;
   return movieModel
-    .find()
-    .then((movies) => res.status(gotSuccess.status).send(movies))
+    .find({ owner: ownerId })
+    .then((movies) => res.status(statusCodes.gotSuccess).send(movies))
     .catch(next);
 }
 
@@ -44,7 +46,7 @@ function createMovie(req, res, next) {
       nameEN,
       owner: req.user.id,
     })
-    .then((movie) => res.status(successCreated.status).send(movie))
+    .then((movie) => res.status(statusCodes.successCreated).send(movie))
     .catch(next);
 }
 
@@ -54,14 +56,14 @@ function deleteMovie(req, res, next) {
 
   return movieModel
     .findById(movieId)
-    .orFail(new SearchError('Фильм с указанным _id не найден.'))
+    .orFail(new SearchError(errorMessages.movieSearchError))
     .then((movie) => {
       if (movie.owner.toString() !== userId) {
-        throw new ForbiddenError('У вас нет прав для удаления данного фильма.');
+        throw new ForbiddenError(errorMessages.forbiddenError);
       }
       return movieModel.deleteOne(movie);
     })
-    .then(() => res.status(gotSuccess.status).send({ message: 'Фильм успешно удалён.' }))
+    .then(() => res.status(statusCodes.gotSuccess).send({ message: successMessages.movieCreated }))
     .catch(next);
 }
 

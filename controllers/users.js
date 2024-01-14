@@ -9,10 +9,12 @@ const RegistrationError = require('../errors/registration-error');
 const ServerError = require('../errors/server-error');
 const UnauthorizedError = require('../errors/unauthorized-error');
 
-const { SALT_ROUNDS } = require('../utils/config');
+const { SALT_ROUNDS, NODE_ENV } = require('../utils/config');
 
 const {
-  gotSuccess,
+  errorMessages,
+  successMessages,
+  statusCodes,
 } = require('../utils/constants');
 
 function handleUserUpdate(req, res, next, options) {
@@ -25,11 +27,11 @@ function handleUserUpdate(req, res, next, options) {
         runValidators: true,
       },
     )
-    .orFail(new SearchError('Пользователь с указанным _id не найден.'))
-    .then((user) => res.status(gotSuccess.status).send(user))
+    .orFail(new SearchError(errorMessages.userSearchError))
+    .then((user) => res.status(statusCodes.gotSuccess).send(user))
     .catch((error) => {
-      if (error.name === 'MongoServerError' && error.code === 11000) {
-        return next(new RegistrationError('Пользователь с данным email уже существует.'));
+      if (error.name === 'MongoServerError' && error.code === statusCodes.dublicateKey) {
+        return next(new RegistrationError(errorMessages.registrationError));
       }
       return next(error);
     });
@@ -46,8 +48,8 @@ function readCurrentUser(req, res, next) {
 
   return userModel
     .findOne({ _id: id })
-    .orFail(new SearchError('Пользователь с указанным _id не найден.'))
-    .then((user) => res.status(gotSuccess.status).send({ email: user.email, name: user.name }))
+    .orFail(new SearchError(errorMessages.userSearchError))
+    .then((user) => res.status(statusCodes.gotSuccess).send({ email: user.email, name: user.name }))
     .catch(next);
 }
 
@@ -55,12 +57,12 @@ function login(req, res, next) {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return next(new BadRequestError('Требуется заполнить email и пароль.'));
+    return next(new BadRequestError(errorMessages.loginRequestError));
   }
 
   return userModel
     .findOne({ email }).select('+password')
-    .orFail(new UnauthorizedError('Неправильный email или пароль.'))
+    .orFail(new UnauthorizedError(errorMessages.authRequestError))
     .then((user) => {
       const token = generateWebToken(user._id);
 
@@ -69,19 +71,30 @@ function login(req, res, next) {
           throw err;
         }
         if (!isMatch) {
-          return next(new UnauthorizedError('Неправильный email или пароль.'));
+          return next(new UnauthorizedError(errorMessages.authRequestError));
         }
 
         return res
-          .status(gotSuccess.status)
-          // .cookie('jwt', token, {
-          //   maxAge: 3600000 * 24 * 7,
-          //   httpOnly: true,
-          // })
+          .status(statusCodes.gotSuccess)
+          .cookie('jwt', token, {
+            maxAge: 3600000 * 24 * 7,
+            httpOnly: true,
+          })
           .send({ token });
       });
     })
     .catch(next);
+}
+
+function signOut(req, res, next) {
+  const { jwt: token } = req.cookies;
+
+  if (!token) {
+    return next(new UnauthorizedError(errorMessages.unauthorizedError));
+  }
+
+  res.clearCookie('jwt');
+  return res.status(statusCodes.gotSuccess).send({ message: successMessages.signOut });
 }
 
 function createUser(req, res, next) {
@@ -90,28 +103,28 @@ function createUser(req, res, next) {
   } = req.body;
 
   if (!email || !password || !name) {
-    return next(new BadRequestError('Требуется заполнить имя, email и пароль.'));
+    return next(new BadRequestError(errorMessages.registrationRequestError));
   }
 
   if (!validator.isEmail(email)) {
-    return next(new BadRequestError('Некорректный email.'));
+    return next(new BadRequestError(errorMessages.emailError));
   }
 
-  return bcrypt.hash(password, SALT_ROUNDS, (err, hash) => {
+  return bcrypt.hash(password, NODE_ENV === 'production' ? SALT_ROUNDS : '10', (err, hash) => {
     if (err) {
-      next(new ServerError('Ошибка сервера.'));
+      next(new ServerError(errorMessages.serverError));
     }
 
     return userModel.create({
       email, password: hash, name,
     })
-      .then((user) => res.status(201).send({
+      .then((user) => res.status(statusCodes.successCreated).send({
         email: user.email,
         name: user.name,
       }))
       .catch((error) => {
         if (error.name === 'MongoServerError' && error.code === 11000) {
-          return next(new RegistrationError('Пользователь с данным email уже существует.'));
+          return next(new RegistrationError(errorMessages.registrationError));
         }
         return next(error);
       });
@@ -123,4 +136,5 @@ module.exports = {
   updateUserInfo,
   login,
   readCurrentUser,
+  signOut,
 };

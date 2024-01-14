@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
 
+const {
+  errorMessages,
+} = require('../utils/constants');
+
 const movieSchema = new mongoose.Schema({
   country: {
     type: String,
@@ -29,7 +33,7 @@ const movieSchema = new mongoose.Schema({
         const linkRegex = /^(https?:\/\/)?([a-zA-Z0-9.-]+(\.[a-zA-Z]{2,})+)(\/[a-zA-Z0-9-._~:/?#[\]@!$&'()*+,;=]*)?$/;
         return linkRegex.test(value);
       },
-      message: 'Некорректная ссылка.',
+      message: errorMessages.linkError,
     },
   },
   trailerLink: {
@@ -40,7 +44,7 @@ const movieSchema = new mongoose.Schema({
         const linkRegex = /^(https?:\/\/)?([a-zA-Z0-9.-]+(\.[a-zA-Z]{2,})+)(\/[a-zA-Z0-9-._~:/?#[\]@!$&'()*+,;=]*)?$/;
         return linkRegex.test(value);
       },
-      message: 'Некорректная ссылка.',
+      message: errorMessages.linkError,
     },
   },
   thumbnail: {
@@ -51,7 +55,7 @@ const movieSchema = new mongoose.Schema({
         const linkRegex = /^(https?:\/\/)?([a-zA-Z0-9.-]+(\.[a-zA-Z]{2,})+)(\/[a-zA-Z0-9-._~:/?#[\]@!$&'()*+,;=]*)?$/;
         return linkRegex.test(value);
       },
-      message: 'Некорректная ссылка.',
+      message: errorMessages.linkError,
     },
   },
   owner: {
