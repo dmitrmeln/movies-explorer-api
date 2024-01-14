@@ -6,6 +6,5 @@
 ## Ссылки на проект
 
 IP 158.160.103.79
-
 Backend https://api.moviesprojectdmitr.nomoredomainsmonster.ru/
 Frontend https://moviesprojectdmitr.nomoredomainsmonster.ru/
