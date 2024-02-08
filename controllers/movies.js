@@ -9,9 +9,9 @@ const {
 } = require('../utils/constants');
 
 function readAllMovies(req, res, next) {
-  const ownerId = req.user.id;
+  const userId = req.user.id;
   return movieModel
-    .find({ owner: ownerId })
+    .find({ owner: userId })
     .then((movies) => res.status(statusCodes.gotSuccess).send(movies))
     .catch(next);
 }
@@ -51,11 +51,10 @@ function createMovie(req, res, next) {
 }
 
 function deleteMovie(req, res, next) {
-  const { movieId } = req.params;
   const userId = req.user.id;
 
   return movieModel
-    .findById(movieId)
+    .findOne({ movieId: req.params.movieId, owner: userId })
     .orFail(new SearchError(errorMessages.movieSearchError))
     .then((movie) => {
       if (movie.owner.toString() !== userId) {
