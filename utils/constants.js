@@ -14,7 +14,7 @@ const statusCodes = {
 };
 
 const errorMessages = {
-  registrationError: 'Пользователь с данным email уже существует.',
+  registrationError: 'Пользователь с таким email уже существует.',
   forbiddenError: 'У вас нет прав для удаления данного фильма.',
   linkValidationError: 'Некорректная ссылка.',
   pageSearchError: 'Страница не найдена',
