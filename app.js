@@ -27,7 +27,7 @@ mongoose.connect(NODE_ENV === 'production' ? MONGO_URL : 'mongodb://localhost:27
 //   'https://api.moviesproject.nomoredomainsmonster.ru/',
 // ];
 
-// // app.options('*', cors());
+// app.options('*', cors());
 
 // const corsOptions = {
 //   credentials: true,

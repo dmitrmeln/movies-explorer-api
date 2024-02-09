@@ -5,7 +5,7 @@
 
 ## Ссылки на проект
 
-IP 158.160.103.79
+IP 130.193.39.224
 
-Backend https://api.moviesproject.nomoredomainsmonster.ru/
-Frontend https://moviesproject.nomoredomainsmonster.ru/
+Backend https://api.movies.nomoredomainsmonster.ru/
+Frontend https://movies.nomoredomainsmonster.ru/
