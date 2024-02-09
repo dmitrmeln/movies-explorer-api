@@ -18,16 +18,21 @@ mongoose.connect(NODE_ENV === 'production' ? MONGO_URL : 'mongodb://localhost:27
     console.log('mongodb connected');
   });
 
-const whitelist = [
+ const whitelist = [
+  'https://movies-dip.nomoredomainsmonster.ru',
   'http://localhost:3000',
   'http://localhost:3001',
-  'http://movies-dip.nomoredomainsmonster.ru/',
-  'https://movies-dip.nomoredomainsmonster.ru/',
-  'http://api.movies-dip.nomoredomainsmonster.ru/',
+  'http://movies-dip.nomoredomainsmonster.ru',
+  'https://api.nomoreparties.co',
+  'https://movies-dip.nomoredomainsmonster.ru',
+  'http://api.movies-dip.nomoredomainsmonster.ru',
+  'https://api.movies-dip.nomoredomainsmonster.ru',
   'https://api.movies-dip.nomoredomainsmonster.ru/',
+  'https://movies-dip.nomoredomainsmonster.ru/',
+  'movies-dip.nomoredomainsmonster.ru',
 ];
 
-app.options('*', cors());
+//  app.options('*', cors());
 
 const corsOptions = {
   credentials: true,
@@ -43,7 +48,7 @@ const corsOptions = {
 app.use(rateLimiter);
 app.use(cors(corsOptions));
 // app.use(cors());
-
+// app.use(cors({credentials: true, origin: 'https://movies-dip.nomoredomainsmonster.ru'}))
 app.use(express.json());
 app.use(helmet());
 app.use(requestLogger);
