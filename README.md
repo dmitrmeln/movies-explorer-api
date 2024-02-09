@@ -7,5 +7,5 @@
 
 IP 130.193.39.224
 
-Backend https://api.movies.nomoredomainsmonster.ru/
-Frontend https://movies.nomoredomainsmonster.ru/
+Backend https://api.movies-dip.nomoredomainsmonster.ru/
+Frontend https://movies-dip.nomoredomainsmonster.ru/
